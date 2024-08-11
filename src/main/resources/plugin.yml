@@ -1,0 +1,14 @@
+name: PgmRegions
+main: org.m2k.PgmRegions
+version: 1.0
+api-version: 1.8
+description: A simple plugin to select points like WorldEdit and create PGM XML regions.
+commands:
+  pwand:
+    description: Gives the player a stone axe for region selection.
+    usage: /pwand
+    aliases: [/pwand]
+  pregion:
+    description: Converts selected points to PGM XML coordinates.
+    usage: /pregion
+    aliases: [pr, /pregion, /pr]
