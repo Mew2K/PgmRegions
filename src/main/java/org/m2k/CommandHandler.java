@@ -2,13 +2,13 @@ package org.m2k;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 public class CommandHandler implements CommandExecutor {
 
@@ -43,7 +43,7 @@ public class CommandHandler implements CommandExecutor {
             }
 
             if (command.getName().equalsIgnoreCase("pregion") || command.getName().equalsIgnoreCase("pr")) {
-                Location[] points = null;
+                Vector[] points;
 
                 if (plugin.isWorldEditEnabled()) {
                     points = plugin.getWorldEditSelection(player);
@@ -52,11 +52,11 @@ public class CommandHandler implements CommandExecutor {
                         return true;
                     }
                 } else {
-                    Location point1 = plugin.getPoint1(player);
-                    Location point2 = plugin.getPoint2(player);
+                    Vector point1 = plugin.getPoint1(player);
+                    Vector point2 = plugin.getPoint2(player);
 
                     if (point1 != null && point2 != null) {
-                        points = new Location[]{point1, point2};
+                        points = new Vector[]{point1, point2};
                     } else {
                         player.sendMessage(ChatColor.RED + "You must select both points before using this command." + ChatColor.RESET);
                         return true;
@@ -64,17 +64,12 @@ public class CommandHandler implements CommandExecutor {
                 }
 
                 // Convert the coordinates using the PGMCoordinateConverter
-                Location[] pgmCoordinates = converter.convertCoordinates(points[0], points[1]);
-                Location minPoint = pgmCoordinates[0];
-                Location maxPoint = pgmCoordinates[1];
-
-                // Get the selected points
-                Location point1 = plugin.getPoint1(player);
-                Location point2 = plugin.getPoint2(player);
-
+                Vector[] pgmCoordinates = converter.convertCoordinates(points[0], points[1]);
+                Vector minPoint = pgmCoordinates[0];
+                Vector maxPoint = pgmCoordinates[1];
 
                 // Create the coordinate text
-                String coordinateText = "min=\\\"" + formatLocation(minPoint) + "\\\" max=\\\"" + formatLocation(maxPoint) + "\\\"";
+                String coordinateText = "min=\\\"" + plugin.formatLocation(minPoint) + "\\\" max=\\\"" + plugin.formatLocation(maxPoint) + "\\\"";
 
                 // Build the JSON message with hover and click events
                 String jsonMessage = "{\"text\":\"" + coordinateText + "\","
@@ -91,9 +86,5 @@ public class CommandHandler implements CommandExecutor {
         }
 
         return false;
-    }
-
-    private String formatLocation(Location loc) {
-        return loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
     }
 }
