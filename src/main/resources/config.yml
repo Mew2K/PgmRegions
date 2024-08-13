@@ -1,0 +1,1 @@
+use-worldedit: true  # Set this to true to prefer WorldEdit, false to use built-in selection. Falls back to built-in if WorldEdit is not installed.

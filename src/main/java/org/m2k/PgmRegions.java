@@ -1,8 +1,11 @@
 package org.m2k;
 
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.bukkit.selections.Selection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -10,20 +13,44 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class PgmRegions extends JavaPlugin implements Listener {
+
+    private boolean isWorldEditEnabled = false;
+    private boolean useWorldEdit = true;
+
     private final Map<UUID, Location> point1Selections = new HashMap<>();
     private final Map<UUID, Location> point2Selections = new HashMap<>();
 
     @Override
     public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(this, this);
+        // Load configuration
+        saveDefaultConfig();
+        FileConfiguration config = getConfig();
+        useWorldEdit = config.getBoolean("use-worldedit", true);
 
+        // Check if WorldEdit is installed
+        Plugin wePlugin = Bukkit.getPluginManager().getPlugin("WorldEdit");
+        if (wePlugin instanceof WorldEditPlugin) {
+            isWorldEditEnabled = true;
+            getLogger().info("WorldEdit detected and enabled.");
+        } else {
+            isWorldEditEnabled = false;
+            getLogger().info("WorldEdit not found. Using built-in region selection.");
+        }
+
+        // Send warning if use-worldedit config is true, but WorldEdit is not installed.
+        if (!isWorldEditEnabled && useWorldEdit) {
+            getLogger().warning("WorldEdit is not installed, defaulting to built-in selection system.");
+        }
+
+        // Register events and commands
+        Bukkit.getPluginManager().registerEvents(this, this);
         this.getCommand("pwand").setExecutor(new CommandHandler(this));
         this.getCommand("pregion").setExecutor(new CommandHandler(this));
     }
@@ -33,7 +60,7 @@ public class PgmRegions extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
 
         // Check if the player is in creative mode and holding a stone axe
-        if (player.isOp() && player.getGameMode() == org.bukkit.GameMode.CREATIVE && player.getItemInHand().getType() == Material.STONE_AXE) {
+        if (!shouldUseWorldEdit() && player.isOp() && player.getGameMode() == org.bukkit.GameMode.CREATIVE && player.getItemInHand().getType() == Material.STONE_AXE) {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                 // Set Point 1
                 point1Selections.put(player.getUniqueId(), event.getClickedBlock().getLocation());
@@ -55,6 +82,14 @@ public class PgmRegions extends JavaPlugin implements Listener {
         UUID playerId = event.getPlayer().getUniqueId();
         point1Selections.remove(playerId);
         point2Selections.remove(playerId);
+    }
+
+    public boolean isWorldEditEnabled() {
+        return isWorldEditEnabled;
+    }
+
+    public boolean shouldUseWorldEdit() {
+        return useWorldEdit && isWorldEditEnabled;
     }
 
     private void sendSelectionMessage(Player player, String action, Location point) {
@@ -88,6 +123,23 @@ public class PgmRegions extends JavaPlugin implements Listener {
         int zSize = zMax - zMin + 1;
 
         return xSize * ySize * zSize;
+    }
+
+    public Location[] getWorldEditSelection(Player player) {
+        if (!isWorldEditEnabled) {
+            return null;
+        }
+
+        WorldEditPlugin wePlugin = (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("WorldEdit");
+        Selection selection = wePlugin.getSelection(player);
+
+        if (selection != null) {
+            Location point1 = selection.getMinimumPoint();
+            Location point2 = selection.getMaximumPoint();
+            return new Location[]{point1, point2};
+        }
+
+        return null;
     }
 
     public Location getPoint1(Player player) {

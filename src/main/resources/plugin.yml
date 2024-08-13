@@ -3,6 +3,9 @@ main: org.m2k.PgmRegions
 version: 1.0
 api-version: 1.8
 description: A simple plugin to select points like WorldEdit and create PGM XML regions.
+softdepend: [WorldEdit]
+website: https://github.com/Mew2K/PgmRegions
+
 commands:
   pwand:
     description: Gives the player a stone axe for region selection.
