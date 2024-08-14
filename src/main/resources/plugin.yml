@@ -10,8 +10,12 @@ commands:
   pwand:
     description: Gives the player a stone axe for region selection.
     usage: /pwand
-    aliases: [/pwand]
+    aliases: [pw, /pwand, /pw]
+    permission: pgmregions.pwand
+    permission-message: "You do not have access to this command."
   pregion:
     description: Converts selected points to PGM XML coordinates.
     usage: /pregion
     aliases: [pr, /pregion, /pr]
+    permission: pgmregions.pregion
+    permission-message: "You do not have access to this command."

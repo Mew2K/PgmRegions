@@ -10,7 +10,6 @@ public class PgmCoordinateConverter {
         int minX = Math.min(point1.getBlockX(), point2.getBlockX());
         int minY = Math.min(point1.getBlockY(), point2.getBlockY());
         int minZ = Math.min(point1.getBlockZ(), point2.getBlockZ());
-
         return new Vector(minX, minY, minZ);
     }
 
@@ -20,7 +19,6 @@ public class PgmCoordinateConverter {
         int maxX = Math.max(point1.getBlockX(), point2.getBlockX());
         int maxY = Math.max(point1.getBlockY(), point2.getBlockY());
         int maxZ = Math.max(point1.getBlockZ(), point2.getBlockZ());
-
         return new Vector(maxX, maxY, maxZ);
     }
 
